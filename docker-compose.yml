@@ -1,0 +1,32 @@
+version: "3.7"
+services:
+  json-convert:
+    build:
+      context: ./json-convert
+      dockerfile: Dockerfile
+    depends_on:
+      - pyserial
+    cmd:
+      - nc
+      - pyserial
+      - 9000
+      - "|"
+      - ts
+      - "'%FT%H:%M:%S'"
+      - "|"
+      - python
+      - json-convert.py
+  pyserial:
+    build:
+      context: ./pyserial
+      dockerfile: Dockerfile
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    ports:
+      - 9000:9000
+    cmd:
+      - python
+      - tcp_serial_redirect.py
+      - "-P"
+      - 9000
+      - /dev/ttyUSB0
